@@ -32,6 +32,10 @@ function renderAuth() {
   
   // Setup real-time validation after rendering
   setTimeout(setupRealTimeValidation, 100);
+  // Populate school datalist on step 1
+  if (authState.mode === 'register' && authState.step === 1) {
+    setTimeout(loadSchoolDatalist, 100);
+  }
 }
 
 function renderLogin() {
@@ -127,7 +131,10 @@ function renderRegStep1() {
     </div>
     <div class="form-group">
       <label class="form-label form-label-light">${t('schoolName')} *</label>
-      <input type="text" class="form-control form-control-dark" id="reg-school" value="${authState.data.school_name||''}" placeholder="Your school name" required>
+      <input type="text" class="form-control form-control-dark" id="reg-school" list="school-list" value="${authState.data.school_name||''}" placeholder="Search or enter school name" required autocomplete="off">
+      <datalist id="school-list"></datalist>
+      <input type="hidden" id="reg-school-id" value="${authState.data.school_id||''}">
+      <p class="form-hint">Select an existing school or type a new name to create one.</p>
     </div>
   </div>
   <div class="form-row">
@@ -504,6 +511,35 @@ function togglePwVis(id, btn) {
   btn.innerHTML = input.type === 'password' ? Icons.eye : Icons.eyeOff;
 }
 
+async function loadSchoolDatalist() {
+  const datalist = document.getElementById('school-list');
+  const schoolInput = document.getElementById('reg-school');
+  const schoolIdInput = document.getElementById('reg-school-id');
+  if (!datalist || !schoolInput || !schoolIdInput) return;
+
+  try {
+    const res = await API.get('/api/auth/schools');
+    const schools = res.schools || res || [];
+    // Store schools for lookup
+    schoolInput._schools = schools;
+    datalist.innerHTML = schools.map(s => `<option value="${s.name}" data-id="${s.id}">`).join('');
+  } catch (err) {
+    // Non-fatal: user can still type a new school name
+  }
+
+  schoolInput.addEventListener('input', function() {
+    const schools = this._schools || [];
+    const match = schools.find(s => s.name === this.value);
+    schoolIdInput.value = match ? match.id : '';
+  });
+
+  schoolInput.addEventListener('change', function() {
+    const schools = this._schools || [];
+    const match = schools.find(s => s.name === this.value);
+    schoolIdInput.value = match ? match.id : '';
+  });
+}
+
 function regNext(e, step) {
   e.preventDefault();
   if (step === 1) {
@@ -512,6 +548,7 @@ function regNext(e, step) {
     const email = document.getElementById('reg-email').value.trim();
     const phone = document.getElementById('reg-phone').value.trim();
     const school = document.getElementById('reg-school').value.trim();
+    const schoolId = document.getElementById('reg-school-id').value.trim();
     const pw = document.getElementById('reg-password').value;
     const confirm = document.getElementById('reg-confirm').value;
     
@@ -548,7 +585,7 @@ function regNext(e, step) {
       return;
     }
     
-    authState.data = { ...authState.data, full_name: name, email, phone, school_name: school, password: pw, confirm_password: confirm };
+    authState.data = { ...authState.data, full_name: name, email, phone, school_name: school, school_id: schoolId || null, password: pw, confirm_password: confirm };
   } else if (step === 2) {
     if (authState.role === 'student') {
       const grade = document.getElementById('reg-grade').value;

@@ -132,6 +132,13 @@ function renderParentDashboard(el) {
 
 ${renderChildSelector()}
 
+${children.length === 0 ? `
+<div style="background:rgba(196,154,108,0.12);border:1px solid var(--accent);border-radius:12px;padding:20px;margin-bottom:24px;text-align:center;">
+  <div style="font-size:2rem;margin-bottom:8px;">👶</div>
+  <h3 style="color:var(--accent);margin-bottom:8px;">No children linked yet</h3>
+  <p style="color:rgba(245,245,245,0.7);font-size:0.9rem;">To see your child's progress, ask them to register on Academia Connect using your phone number (<strong>${parentData.parent.phone}</strong>) as their parent contact. Once they register, they'll appear here automatically.</p>
+</div>` : ''}
+
 ${child ? `
 <div class="stats-grid" style="margin-bottom:24px;">
   <div class="stat-card">

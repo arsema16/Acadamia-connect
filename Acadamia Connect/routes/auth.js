@@ -42,8 +42,16 @@ router.post("/register", (req, res) => {
     }
   }
 
-  // Find or create school
-  let school = db.prepare("SELECT id FROM schools WHERE name = ?").get(school_name);
+  // Find or create school — prefer school_id if provided by client
+  const { school_id: bodySchoolId } = req.body;
+  let school = null;
+  if (bodySchoolId) {
+    school = db.prepare("SELECT id FROM schools WHERE id = ?").get(bodySchoolId);
+  }
+  if (!school) {
+    // Fall back to case-insensitive name match, then create if still not found
+    school = db.prepare("SELECT id FROM schools WHERE LOWER(TRIM(name)) = LOWER(TRIM(?))").get(school_name);
+  }
   if (!school) {
     const result = db.prepare("INSERT INTO schools (name, code, verified) VALUES (?, ?, 0)").run(school_name, "SCH" + Date.now());
     school = { id: result.lastInsertRowid };

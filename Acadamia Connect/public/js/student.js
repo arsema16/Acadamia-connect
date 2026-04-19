@@ -132,7 +132,15 @@ function renderStudentDashboard(el) {
   const rewardActive = u.reward_expires && new Date(u.reward_expires) > new Date();
   const minsLeft = rewardActive ? Math.round((new Date(u.reward_expires) - new Date()) / 60000) : 0;
 
+  const isNewSchool = announcements.length === 0 && (studentData.assessments||[]).length === 0;
+
   el.innerHTML = `
+${isNewSchool ? `
+<div style="background:rgba(196,154,108,0.12);border:1px solid var(--accent);border-radius:12px;padding:20px;margin-bottom:24px;text-align:center;">
+  <div style="font-size:2rem;margin-bottom:8px;">🏫</div>
+  <h3 style="color:var(--accent);margin-bottom:8px;">Welcome to your new school!</h3>
+  <p style="color:rgba(245,245,245,0.7);font-size:0.9rem;">Your school is all set up. Content like announcements, quizzes, and videos will appear here once your teachers and admin add them. Check back soon!</p>
+</div>` : ''}
 <div class="welcome-banner">
   <div class="welcome-text">
     <h2>${t('welcome')}, ${u.nickname || u.full_name.split(' ')[0]}! ${getAvatarEmoji(u.avatar)}</h2>

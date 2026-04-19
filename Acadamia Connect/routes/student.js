@@ -75,8 +75,8 @@ router.put("/tasks/:id", auth, (req, res) => {
     return res.status(404).json({ success: false, message: "Task not found" });
   }
   
-  db.prepare("UPDATE tasks SET title=?,subject=?,due_date=?,due_time=?,priority=?,notes=?,completed=? WHERE id=? AND student_id=?").run(
-    title, subject, due_date, due_time, priority, notes, completed ? 1 : 0, req.params.id, req.userId
+  db.prepare("UPDATE tasks SET title=COALESCE(?,title),subject=COALESCE(?,subject),due_date=COALESCE(?,due_date),due_time=COALESCE(?,due_time),priority=COALESCE(?,priority),notes=COALESCE(?,notes),completed=? WHERE id=? AND student_id=?").run(
+    title ?? null, subject ?? null, due_date ?? null, due_time ?? null, priority ?? null, notes ?? null, completed ? 1 : 0, req.params.id, req.userId
   );
   
   if (completed) {

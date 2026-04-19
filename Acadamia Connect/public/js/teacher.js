@@ -130,7 +130,12 @@ function renderTeacherDashboard(el) {
       <input type="text" id="quick-search" placeholder="Search students..." oninput="quickSearchStudents(this.value)">
     </div>
     <div id="quick-search-results">
-      ${students.slice(0,5).map(s => renderStudentRow(s)).join('')}
+      ${students.length === 0
+        ? `<div class="empty-state" style="padding:20px;text-align:center;">
+            <div style="font-size:2rem;margin-bottom:8px;">👨‍🎓</div>
+            <p style="color:rgba(245,245,245,0.7);">No students yet. Share your school name with students so they can register and join your class!</p>
+           </div>`
+        : students.slice(0,5).map(s => renderStudentRow(s)).join('')}
     </div>
   </div>
   <div>
