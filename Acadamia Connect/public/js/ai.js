@@ -239,7 +239,8 @@ const AthenaAI = {
     const container = document.getElementById('ai-messages');
     if (!container) return;
     container.innerHTML = '';
-    const studentName = AppState?.user?.nickname || AppState?.user?.full_name?.split(' ')[0] || 'there';
+    const user = (typeof AppState !== 'undefined' && AppState?.user) ? AppState.user : null;
+    const studentName = user?.nickname || user?.full_name?.split(' ')[0] || 'there';
     if (this.history.length === 0) {
       this.renderMessage('bot', `Hello ${studentName}! I'm Athena, your AI study coach. I'm here to help with study tips, exam preparation, time management, and motivation. What can I help you with today?`);
     } else {
@@ -265,13 +266,14 @@ function sendAI() {
   input.value = '';
   AthenaAI.addMessage('user', msg);
 
-  // Build student context from AppState
+  // Build student context from AppState safely
+  const user = (typeof AppState !== 'undefined' && AppState?.user) ? AppState.user : null;
   const studentContext = {
-    grade: AppState?.user?.grade,
+    grade: user?.grade,
     interests: (() => {
-      try { return JSON.parse(AppState?.user?.interests || '[]'); } catch { return []; }
+      try { return JSON.parse(user?.interests || '[]'); } catch { return []; }
     })(),
-    lowScoreSubjects: [] // Could be populated from assessment data
+    lowScoreSubjects: []
   };
 
   setTimeout(() => {
@@ -419,10 +421,19 @@ function aiQuick(msg) {
   const panel = document.getElementById('ai-panel');
   if (panel && panel.classList.contains('hidden')) {
     toggleAI();
-  }
-  const input = document.getElementById('ai-input');
-  if (input) {
-    input.value = msg;
-    sendAI();
+    // Wait for panel to open and init before sending
+    setTimeout(() => {
+      const input = document.getElementById('ai-input');
+      if (input) {
+        input.value = msg;
+        sendAI();
+      }
+    }, 100);
+  } else {
+    const input = document.getElementById('ai-input');
+    if (input) {
+      input.value = msg;
+      sendAI();
+    }
   }
 }

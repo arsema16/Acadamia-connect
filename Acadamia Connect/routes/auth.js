@@ -48,9 +48,18 @@ router.post("/register", (req, res) => {
   if (bodySchoolId) {
     school = db.prepare("SELECT id FROM schools WHERE id = ?").get(bodySchoolId);
   }
-  if (!school) {
-    // Fall back to case-insensitive name match, then create if still not found
+  if (!school && school_name) {
+    // Case-insensitive + trimmed name match
     school = db.prepare("SELECT id FROM schools WHERE LOWER(TRIM(name)) = LOWER(TRIM(?))").get(school_name);
+  }
+  if (!school && school_name) {
+    // Last resort: partial match (school name contains the typed value or vice versa)
+    const allSchools = db.prepare("SELECT id, name FROM schools").all();
+    const typed = school_name.trim().toLowerCase();
+    const partial = allSchools.find(s => 
+      s.name.trim().toLowerCase().includes(typed) || typed.includes(s.name.trim().toLowerCase())
+    );
+    if (partial) school = partial;
   }
   if (!school) {
     const result = db.prepare("INSERT INTO schools (name, code, verified) VALUES (?, ?, 0)").run(school_name, "SCH" + Date.now());

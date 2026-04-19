@@ -17,6 +17,8 @@ async function renderAdminPortal() {
     <nav class="sidebar-nav">
       <div class="nav-section-title">Overview</div>
       ${aNavItem('dashboard','home',t('dashboard'))}
+      ${aNavItem('schools','school','All Schools')}
+      ${aNavItem('allusers','students','All Users')}
       ${aNavItem('students','students',t('students'))}
       ${aNavItem('teachers','book',t('teachers'))}
       ${aNavItem('parents','user',t('parents'))}
@@ -76,6 +78,8 @@ function switchAdminTab(tab) {
   if (!content) return;
   switch(tab) {
     case 'dashboard':     renderAdminDashboard(content); break;
+    case 'schools':       renderAdminSchools(content); break;
+    case 'allusers':      renderAdminAllUsers(content); break;
     case 'students':      renderAdminUsers(content,'student'); break;
     case 'teachers':      renderAdminUsers(content,'teacher'); break;
     case 'parents':       renderAdminUsers(content,'parent'); break;
@@ -141,6 +145,137 @@ function renderAdminDashboard(el) {
     </div>`).join('') || `<div class="empty-state"><p>No events</p></div>`}
   </div>
 </div>`;
+}
+
+async function renderAdminSchools(el) {
+  const data = await API.get('/api/admin/schools');
+  const schools = data.schools || [];
+  el.innerHTML = `
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+  <h2 class="text-accent">${Icons.school||'🏫'} All Schools (${schools.length})</h2>
+</div>
+<div class="table-card">
+  <table>
+    <thead><tr><th>School Name</th><th>Code</th><th>Students</th><th>Teachers</th><th>Parents</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+      ${schools.length === 0
+        ? `<tr><td colspan="7" style="text-align:center;color:rgba(245,245,245,0.4);padding:20px;">No schools found</td></tr>`
+        : schools.map(s => `
+      <tr>
+        <td style="font-weight:600;color:var(--accent);">${s.name}</td>
+        <td style="font-size:0.82rem;">${s.code||'—'}</td>
+        <td><span class="badge badge-accent">${s.student_count||0}</span></td>
+        <td><span class="badge badge-accent">${s.teacher_count||0}</span></td>
+        <td><span class="badge badge-accent">${s.parent_count||0}</span></td>
+        <td><span class="badge ${s.verified?'badge-success':'badge-warning'}">${s.verified?'Verified':'Unverified'}</span></td>
+        <td>
+          <button class="btn btn-primary btn-sm" onclick="viewSchoolUsers(${s.id},'${s.name.replace(/'/g,"\\'")}')">${Icons.students} View Users</button>
+        </td>
+      </tr>`).join('')}
+    </tbody>
+  </table>
+</div>`;
+}
+
+async function viewSchoolUsers(schoolId, schoolName) {
+  const content = document.getElementById('admin-content');
+  const data = await API.get('/api/admin/users?role=all&school_id=' + schoolId);
+  const students = data.students || [];
+  const teachers = data.teachers || [];
+  const parents = data.parents || [];
+  content.innerHTML = `
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+  <button class="btn btn-secondary btn-sm" onclick="switchAdminTab('schools')">${Icons.chevronLeft} Back</button>
+  <h2 class="text-accent">${Icons.school||'🏫'} ${schoolName}</h2>
+</div>
+<div class="tabs" style="margin-bottom:16px;">
+  <button class="tab-btn active" onclick="showSchoolUserTab('students',this)">Students (${students.length})</button>
+  <button class="tab-btn" onclick="showSchoolUserTab('teachers',this)">Teachers (${teachers.length})</button>
+  <button class="tab-btn" onclick="showSchoolUserTab('parents',this)">Parents (${parents.length})</button>
+</div>
+<div id="school-users-students">
+  ${renderUserTable(students, 'student')}
+</div>
+<div id="school-users-teachers" style="display:none;">
+  ${renderUserTable(teachers, 'teacher')}
+</div>
+<div id="school-users-parents" style="display:none;">
+  ${renderUserTable(parents, 'parent')}
+</div>`;
+}
+
+function showSchoolUserTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['students','teachers','parents'].forEach(t => {
+    const el = document.getElementById('school-users-' + t);
+    if (el) el.style.display = t === tab ? '' : 'none';
+  });
+}
+
+function renderUserTable(users, role) {
+  if (users.length === 0) return `<div class="empty-state"><p>No ${role}s registered</p></div>`;
+  return `<div class="table-card"><table>
+    <thead><tr><th>Name</th><th>Email</th>${role==='student'?'<th>Grade</th>':role==='teacher'?'<th>Employee ID</th>':''}<th>Joined</th></tr></thead>
+    <tbody>
+      ${users.map(u => `
+      <tr>
+        <td><div style="display:flex;align-items:center;gap:8px;"><div class="user-row-avatar">${initials(u.full_name)}</div><span>${u.full_name}</span></div></td>
+        <td style="font-size:0.82rem;color:rgba(245,245,245,0.6);">${u.email}</td>
+        ${role==='student'?`<td>${u.grade||'—'}</td>`:role==='teacher'?`<td>${u.employee_id||'—'}</td>`:''}
+        <td style="font-size:0.78rem;color:rgba(245,245,245,0.4);">${formatDate(u.created_at)}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table></div>`;
+}
+
+async function renderAdminAllUsers(el) {
+  const data = await API.get('/api/admin/users?role=all');
+  const students = data.students || [];
+  const teachers = data.teachers || [];
+  const parents = data.parents || [];
+  el.innerHTML = `
+<h2 class="text-accent" style="margin-bottom:20px;">${Icons.students} All Users (${students.length + teachers.length + parents.length})</h2>
+<div class="tabs" style="margin-bottom:16px;">
+  <button class="tab-btn active" onclick="showAllUserTab('students',this)">Students (${students.length})</button>
+  <button class="tab-btn" onclick="showAllUserTab('teachers',this)">Teachers (${teachers.length})</button>
+  <button class="tab-btn" onclick="showAllUserTab('parents',this)">Parents (${parents.length})</button>
+</div>
+<div id="allusers-students">
+  ${renderAllUserTable(students, 'student')}
+</div>
+<div id="allusers-teachers" style="display:none;">
+  ${renderAllUserTable(teachers, 'teacher')}
+</div>
+<div id="allusers-parents" style="display:none;">
+  ${renderAllUserTable(parents, 'parent')}
+</div>`;
+}
+
+function showAllUserTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['students','teachers','parents'].forEach(t => {
+    const el = document.getElementById('allusers-' + t);
+    if (el) el.style.display = t === tab ? '' : 'none';
+  });
+}
+
+function renderAllUserTable(users, role) {
+  if (users.length === 0) return `<div class="empty-state"><p>No ${role}s registered</p></div>`;
+  return `<div class="table-card"><table>
+    <thead><tr><th>Name</th><th>Email</th><th>School</th>${role==='student'?'<th>Grade</th>':role==='teacher'?'<th>Employee ID</th>':''}<th>Joined</th></tr></thead>
+    <tbody>
+      ${users.map(u => `
+      <tr>
+        <td><div style="display:flex;align-items:center;gap:8px;"><div class="user-row-avatar">${initials(u.full_name)}</div><span>${u.full_name}</span></div></td>
+        <td style="font-size:0.82rem;color:rgba(245,245,245,0.6);">${u.email}</td>
+        <td style="font-size:0.82rem;color:var(--accent);">${u.school_name||'—'}</td>
+        ${role==='student'?`<td>${u.grade||'—'}</td>`:role==='teacher'?`<td>${u.employee_id||'—'}</td>`:''}
+        <td style="font-size:0.78rem;color:rgba(245,245,245,0.4);">${formatDate(u.created_at)}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table></div>`;
 }
 
 async function renderAdminUsers(el, role) {

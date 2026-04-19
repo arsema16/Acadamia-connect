@@ -529,14 +529,18 @@ async function loadSchoolDatalist() {
 
   schoolInput.addEventListener('input', function() {
     const schools = this._schools || [];
-    const match = schools.find(s => s.name === this.value);
+    const val = this.value.trim().toLowerCase();
+    const match = schools.find(s => s.name.trim().toLowerCase() === val);
     schoolIdInput.value = match ? match.id : '';
   });
 
   schoolInput.addEventListener('change', function() {
     const schools = this._schools || [];
-    const match = schools.find(s => s.name === this.value);
+    const val = this.value.trim().toLowerCase();
+    const match = schools.find(s => s.name.trim().toLowerCase() === val);
     schoolIdInput.value = match ? match.id : '';
+    // If matched, normalize the displayed name to the canonical version
+    if (match) this.value = match.name;
   });
 }
 

@@ -51,18 +51,37 @@ router.post("/videos/:id/reject", auth, (req, res) => {
 });
 
 router.get("/users", auth, (req, res) => {
-  const { role } = req.query;
+  const { role, school_id } = req.query;
+  // Use provided school_id filter or default to admin's own school
+  const targetSchoolId = school_id || req.schoolId;
   if (role === "student") {
-    const users = db.prepare("SELECT id, full_name, email, grade, section, points, streak, created_at FROM students WHERE school_id=? ORDER BY full_name").all(req.schoolId);
+    const users = db.prepare("SELECT s.id, s.full_name, s.email, s.grade, s.section, s.points, s.streak, s.created_at, sc.name as school_name FROM students s LEFT JOIN schools sc ON s.school_id=sc.id WHERE s.school_id=? ORDER BY s.full_name").all(targetSchoolId);
     return res.json({ success: true, users });
   } else if (role === "teacher") {
-    const users = db.prepare("SELECT id, full_name, email, employee_id, subjects, experience, created_at FROM teachers WHERE school_id=? ORDER BY full_name").all(req.schoolId);
+    const users = db.prepare("SELECT t.id, t.full_name, t.email, t.employee_id, t.subjects, t.experience, t.created_at, sc.name as school_name FROM teachers t LEFT JOIN schools sc ON t.school_id=sc.id WHERE t.school_id=? ORDER BY t.full_name").all(targetSchoolId);
     return res.json({ success: true, users });
   } else if (role === "parent") {
-    const users = db.prepare("SELECT id, full_name, email, phone, children, payment_reminders, created_at FROM parents WHERE school_id=? ORDER BY full_name").all(req.schoolId);
+    const users = db.prepare("SELECT p.id, p.full_name, p.email, p.phone, p.children, p.payment_reminders, p.created_at, sc.name as school_name FROM parents p LEFT JOIN schools sc ON p.school_id=sc.id WHERE p.school_id=? ORDER BY p.full_name").all(targetSchoolId);
     return res.json({ success: true, users });
+  } else if (role === "all") {
+    // Return all users across all schools for super-admin view
+    const students = db.prepare("SELECT s.id, s.full_name, s.email, s.grade, s.created_at, 'student' as role, sc.name as school_name FROM students s LEFT JOIN schools sc ON s.school_id=sc.id ORDER BY sc.name, s.full_name").all();
+    const teachers = db.prepare("SELECT t.id, t.full_name, t.email, t.employee_id, t.created_at, 'teacher' as role, sc.name as school_name FROM teachers t LEFT JOIN schools sc ON t.school_id=sc.id ORDER BY sc.name, t.full_name").all();
+    const parents = db.prepare("SELECT p.id, p.full_name, p.email, p.created_at, 'parent' as role, sc.name as school_name FROM parents p LEFT JOIN schools sc ON p.school_id=sc.id ORDER BY sc.name, p.full_name").all();
+    return res.json({ success: true, students, teachers, parents });
   }
   res.json({ success: false, message: "Invalid role" });
+});
+
+router.get("/schools", auth, (req, res) => {
+  const schools = db.prepare(`
+    SELECT s.*, 
+      (SELECT COUNT(*) FROM students WHERE school_id=s.id) as student_count,
+      (SELECT COUNT(*) FROM teachers WHERE school_id=s.id) as teacher_count,
+      (SELECT COUNT(*) FROM parents WHERE school_id=s.id) as parent_count
+    FROM schools s ORDER BY s.name
+  `).all();
+  res.json({ success: true, schools });
 });
 
 router.delete("/user/:role/:id", auth, (req, res) => {
