@@ -504,14 +504,16 @@ async function renderAdminVideos(el) {
 }
 
 async function approveVideo(id) {
-  const res = await API.put('/api/admin/video/' + id + '/approve', {});
+  const res = await API.post('/api/admin/videos/' + id + '/approve', {});
   if (res.success) { showToast('Video approved!', 'success'); renderAdminVideos(document.getElementById('admin-content')); }
+  else showToast(res.message || 'Failed', 'error');
 }
 
 async function deleteVideo(id) {
   if (!confirm('Delete this video?')) return;
-  const res = await API.delete('/api/admin/video/' + id);
+  const res = await API.post('/api/admin/videos/' + id + '/reject', {});
   if (res.success) { showToast('Video deleted', 'success'); renderAdminVideos(document.getElementById('admin-content')); }
+  else showToast(res.message || 'Failed', 'error');
 }
 
 async function renderAdminLeaderboard(el) {

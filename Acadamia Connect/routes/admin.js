@@ -25,6 +25,31 @@ router.get("/dashboard", auth, (req, res) => {
   });
 });
 
+// Video moderation
+router.get("/videos/pending", auth, (req, res) => {
+  const videos = db.prepare(`SELECT v.*, t.full_name as uploader_name FROM videos v LEFT JOIN teachers t ON v.uploader_id=t.id AND v.uploader_role='teacher' WHERE v.school_id=? AND v.approved=0 ORDER BY v.created_at DESC`).all(req.schoolId);
+  res.json({ success: true, videos });
+});
+
+router.get("/videos", auth, (req, res) => {
+  const videos = db.prepare(`SELECT v.*, t.full_name as uploader_name FROM videos v LEFT JOIN teachers t ON v.uploader_id=t.id AND v.uploader_role='teacher' WHERE v.school_id=? ORDER BY v.created_at DESC`).all(req.schoolId);
+  res.json({ success: true, videos });
+});
+
+router.post("/videos/:id/approve", auth, (req, res) => {
+  const video = db.prepare("SELECT id FROM videos WHERE id=? AND school_id=?").get(req.params.id, req.schoolId);
+  if (!video) return res.status(404).json({ success: false, message: "Video not found" });
+  db.prepare("UPDATE videos SET approved=1, moderation_status='approved' WHERE id=? AND school_id=?").run(req.params.id, req.schoolId);
+  res.json({ success: true });
+});
+
+router.post("/videos/:id/reject", auth, (req, res) => {
+  const video = db.prepare("SELECT id FROM videos WHERE id=? AND school_id=?").get(req.params.id, req.schoolId);
+  if (!video) return res.status(404).json({ success: false, message: "Video not found" });
+  db.prepare("DELETE FROM videos WHERE id=? AND school_id=?").run(req.params.id, req.schoolId);
+  res.json({ success: true });
+});
+
 router.get("/users", auth, (req, res) => {
   const { role } = req.query;
   if (role === "student") {

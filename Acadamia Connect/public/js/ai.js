@@ -414,3 +414,15 @@ if (document.readyState === 'loading') {
 } else {
   initDraggableAIButton();
 }
+
+function aiQuick(msg) {
+  const panel = document.getElementById('ai-panel');
+  if (panel && panel.classList.contains('hidden')) {
+    toggleAI();
+  }
+  const input = document.getElementById('ai-input');
+  if (input) {
+    input.value = msg;
+    sendAI();
+  }
+}
