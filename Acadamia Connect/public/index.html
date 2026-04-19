@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2C1810">
+<meta name="description" content="Academia Connect - Digital Education Platform">
+<link rel="manifest" href="/manifest.json">
+<title>Academia Connect</title>
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/landing.css">
+<link rel="stylesheet" href="/css/auth.css">
+<link rel="stylesheet" href="/css/student.css">
+<link rel="stylesheet" href="/css/teacher.css">
+<link rel="stylesheet" href="/css/parent.css">
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="stylesheet" href="/css/games.css">
+<link rel="stylesheet" href="/css/chat.css">
+<link rel="stylesheet" href="/css/video-feed.css">
+</head>
+<body>
+<div id="app">
+  <div id="page-landing" class="page active"></div>
+  <div id="page-auth" class="page"></div>
+  <div id="page-student" class="page"></div>
+  <div id="page-teacher" class="page"></div>
+  <div id="page-parent" class="page"></div>
+  <div id="page-admin" class="page"></div>
+</div>
+
+<!-- AI Chatbot -->
+<div id="ai-btn" class="ai-fab" draggable="false">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
+</div>
+<div id="ai-panel" class="ai-panel hidden">
+  <div class="ai-header">
+    <span class="ai-title">Athena — AI Study Coach</span>
+    <button onclick="toggleAI()" class="ai-close">&#x2715;</button>
+  </div>
+  <div id="ai-messages" class="ai-messages"></div>
+  <div class="ai-quick-btns">
+    <button onclick="aiQuick('Study tips')">Study tips</button>
+    <button onclick="aiQuick('Feeling overwhelmed')">Overwhelmed</button>
+    <button onclick="aiQuick('Exam prep')">Exam prep</button>
+    <button onclick="aiQuick('Time management')">Time mgmt</button>
+  </div>
+  <div class="ai-input-row">
+    <input id="ai-input" type="text" placeholder="Ask Athena anything..." onkeydown="if(event.key==='Enter')sendAI()">
+    <button onclick="sendAI()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- Modal -->
+<div id="modal-overlay" class="modal-overlay hidden" onclick="closeModal()">
+  <div id="modal-box" class="modal-box" onclick="event.stopPropagation()">
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script src="/js/i18n.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/ai.js"></script>
+<script src="/js/landing.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/student.js"></script>
+<script src="/js/teacher.js"></script>
+<script src="/js/parent.js"></script>
+<script src="/js/admin.js"></script>
+<script src="/js/games.js"></script>
+<script src="/js/chat.js"></script>
+<script src="/js/video-feed.js"></script>
+<script src="/js/offline-sync.js"></script>
+<script src="/js/app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  }
+</script>
+</body>
+</html>

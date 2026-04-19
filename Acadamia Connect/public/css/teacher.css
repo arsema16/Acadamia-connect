@@ -1,0 +1,101 @@
+/* ===== TEACHER PORTAL ===== */
+
+.student-search-result {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; background: var(--bg-secondary);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  margin-bottom: 8px; cursor: pointer; transition: all 0.2s;
+}
+.student-search-result:hover { border-color: var(--accent); }
+.student-avatar-sm {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--accent); display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: var(--text-dark); font-size: 1rem; flex-shrink: 0;
+}
+.student-info-sm { flex: 1; }
+.student-name-sm { font-size: 0.92rem; font-weight: 600; color: var(--text-light); }
+.student-grade-sm { font-size: 0.75rem; color: rgba(245,245,245,0.5); }
+
+/* Assessment form */
+.assessment-form {
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 24px;
+}
+.marks-display {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px; background: rgba(196,154,108,0.1);
+  border: 1px solid var(--accent); border-radius: var(--radius);
+  margin-top: 12px;
+}
+.marks-pct { font-size: 2rem; font-weight: 700; color: var(--accent); }
+.marks-grade {
+  width: 48px; height: 48px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 1.1rem;
+}
+
+/* Attendance grid */
+.attendance-grid { display: flex; flex-direction: column; gap: 8px; }
+.attendance-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; background: var(--bg-secondary);
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+.attendance-name { flex: 1; font-size: 0.9rem; }
+.attendance-btns { display: flex; gap: 6px; }
+.att-btn {
+  padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border);
+  font-size: 0.78rem; cursor: pointer; font-family: var(--font);
+  background: none; color: rgba(245,245,245,0.6); transition: all 0.2s;
+}
+.att-btn:hover { border-color: var(--accent); color: var(--accent); }
+.att-btn.selected-present { background: rgba(46,125,50,0.2); border-color: #2E7D32; color: #66BB6A; }
+.att-btn.selected-absent { background: rgba(198,40,40,0.2); border-color: #C62828; color: #EF5350; }
+.att-btn.selected-late { background: rgba(245,127,23,0.2); border-color: #F57F17; color: #FFA726; }
+.att-btn.selected-excused { background: rgba(21,101,192,0.2); border-color: #1565C0; color: #42A5F5; }
+
+/* Quiz builder */
+.quiz-question {
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
+}
+.quiz-question-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+}
+.quiz-options { display: flex; flex-direction: column; gap: 8px; }
+.quiz-option-row { display: flex; align-items: center; gap: 8px; }
+.quiz-option-row input[type="radio"] { accent-color: var(--accent); }
+.add-question-btn {
+  width: 100%; padding: 12px; border: 2px dashed var(--border);
+  border-radius: var(--radius); background: none; color: rgba(245,245,245,0.5);
+  cursor: pointer; font-family: var(--font); font-size: 0.9rem;
+  transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.add-question-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Video upload */
+.upload-zone {
+  border: 2px dashed var(--border); border-radius: var(--radius-lg);
+  padding: 40px; text-align: center; cursor: pointer;
+  transition: all 0.2s; background: rgba(255,255,255,0.02);
+}
+.upload-zone:hover { border-color: var(--accent); background: rgba(196,154,108,0.05); }
+.upload-zone.dragover { border-color: var(--accent); background: rgba(196,154,108,0.1); }
+.upload-icon { color: rgba(245,245,245,0.3); margin-bottom: 12px; }
+.upload-text { font-size: 0.9rem; color: rgba(245,245,245,0.6); }
+.upload-hint { font-size: 0.78rem; color: rgba(245,245,245,0.4); margin-top: 6px; }
+
+/* Parent list */
+.parent-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; background: var(--bg-secondary);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  margin-bottom: 8px; cursor: pointer; transition: all 0.2s;
+}
+.parent-item:hover { border-color: var(--accent); }
+.parent-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(196,154,108,0.2); border: 1px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent); font-weight: 700; flex-shrink: 0;
+}

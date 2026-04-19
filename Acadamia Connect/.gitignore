@@ -1,0 +1,13 @@
+node_modules/
+.env
+db/academia.db
+uploads/avatars/*
+uploads/files/*
+uploads/videos/*
+uploads/materials/*
+!uploads/avatars/.gitkeep
+!uploads/files/.gitkeep
+!uploads/videos/.gitkeep
+!uploads/materials/.gitkeep
+*.log
+.DS_Store
