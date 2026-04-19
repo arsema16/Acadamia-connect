@@ -106,11 +106,11 @@ function renderRegStep1() {
 <form onsubmit="regNext(event,1)">
   <p style="font-size:0.85rem;color:rgba(245,245,245,0.6);margin-bottom:10px;">${t('selectRole')}:</p>
   <div class="role-selector" style="margin-bottom:16px;">
-    ${['student','teacher','parent','admin'].map(r => `
+    ${['student','teacher','parent'].map(r => `
     <div class="role-card ${authState.role===r?'selected':''}" onclick="authState.role='${r}';document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('selected'));this.classList.add('selected')">
-      <div class="role-card-icon">${r==='student'?Icons.students:r==='teacher'?Icons.book:r==='parent'?Icons.user:Icons.school}</div>
+      <div class="role-card-icon">${r==='student'?Icons.students:r==='teacher'?Icons.book:Icons.user}</div>
       <div class="role-card-name">${t(r)}</div>
-      <div class="role-card-desc">${r==='student'?'Access learning tools':r==='teacher'?'Manage your class':r==='parent'?'Monitor your child':'Manage the school'}</div>
+      <div class="role-card-desc">${r==='student'?'Access learning tools':r==='teacher'?'Manage your class':'Monitor your child'}</div>
     </div>`).join('')}
   </div>
   <div class="form-row">
@@ -127,7 +127,7 @@ function renderRegStep1() {
     <div class="form-group">
       <label class="form-label form-label-light">${t('phone')} *</label>
       <input type="tel" class="form-control form-control-dark" id="reg-phone" value="${authState.data.phone||''}" placeholder="+251911234567" required>
-      <p class="form-hint">Ethiopian format: +251XXXXXXXXX</p>
+      <p class="form-hint">Format: +251911234567 or +1234567890</p>
     </div>
     <div class="form-group">
       <label class="form-label form-label-light">${t('schoolName')} *</label>
@@ -377,7 +377,10 @@ function selectAvatar(key, el) {
 function validatePhoneNumber(phone) {
   if (!phone || typeof phone !== 'string') return false;
   const cleaned = phone.replace(/\s/g, '');
-  return /^\+251[79]\d{8}$/.test(cleaned);
+  if (/^\+251[79]\d{8}$/.test(cleaned)) return true;
+  if (/^\+\d{7,15}$/.test(cleaned)) return true;
+  if (/^0[79]\d{8}$/.test(cleaned)) return true;
+  return false;
 }
 
 function validateEmail(email) {
@@ -568,7 +571,7 @@ function regNext(e, step) {
     }
     
     if (!validatePhoneNumber(phone)) { 
-      showToast('Invalid phone number. Use Ethiopian format: +251XXXXXXXXX', 'error'); 
+      showToast('Invalid phone number. Use format: +251XXXXXXXXX or any international format', 'error'); 
       return; 
     }
     

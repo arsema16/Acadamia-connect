@@ -17,8 +17,13 @@ function validatePhoneNumber(phone) {
   // Remove whitespace
   const cleaned = phone.replace(/\s/g, '');
   
-  // Ethiopian format: +251 followed by 7 or 9, then 8 digits
-  return /^\+251[79]\d{8}$/.test(cleaned);
+  // Accept Ethiopian format (+251[7|9]XXXXXXXX) OR any international format (+XXXXXXXXXXX, min 7 digits)
+  if (/^\+251[79]\d{8}$/.test(cleaned)) return true;
+  if (/^\+\d{7,15}$/.test(cleaned)) return true;
+  // Also accept local formats like 09XXXXXXXX or 07XXXXXXXX
+  if (/^0[79]\d{8}$/.test(cleaned)) return true;
+  
+  return false;
 }
 
 /**
@@ -67,18 +72,24 @@ function checkPasswordStrength(password) {
 function validateRegistrationInput(payload) {
   const errors = [];
   
-  // Check required fields
-  const requiredFields = ['role', 'full_name', 'email', 'phone', 'password', 'school_name'];
+  // Check required fields — school_name OR school_id must be present
+  const requiredFields = ['role', 'full_name', 'email', 'phone', 'password'];
   for (const field of requiredFields) {
     if (!payload[field] || payload[field].toString().trim() === '') {
       errors.push(`${field.replace('_', ' ')} is required`);
     }
   }
   
-  // Validate role
-  const validRoles = ['student', 'teacher', 'parent', 'admin'];
+  // School: either school_name or school_id must be provided
+  if ((!payload.school_name || payload.school_name.toString().trim() === '') && 
+      (!payload.school_id || payload.school_id.toString().trim() === '')) {
+    errors.push('school name is required');
+  }
+  
+  // Validate role — admin cannot self-register
+  const validRoles = ['student', 'teacher', 'parent'];
   if (payload.role && !validRoles.includes(payload.role)) {
-    errors.push('Invalid role. Must be student, teacher, parent, or admin');
+    errors.push('Invalid role. Must be student, teacher, or parent');
   }
   
   // Validate email format

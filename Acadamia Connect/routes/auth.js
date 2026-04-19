@@ -28,6 +28,11 @@ router.post("/register", (req, res) => {
 
   const { role, full_name, email, phone, password, confirm_password, school_name, ...rest } = req.body;
 
+  // Admin accounts cannot be self-registered
+  if (role === 'admin') {
+    return res.status(403).json({ success: false, message: 'Admin accounts cannot be self-registered. Contact your system administrator.' });
+  }
+
   // Check for duplicate email across all role tables (HTTP 409)
   const emailExists = (table) => db.prepare(`SELECT id FROM ${table} WHERE email = ?`).get(email);
   if (emailExists("students") || emailExists("teachers") || emailExists("parents") || emailExists("admins")) {
