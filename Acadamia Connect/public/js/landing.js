@@ -7,7 +7,7 @@ function renderLanding() {
   <nav class="landing-nav">
     <div class="nav-brand">
       <div class="nav-brand-icon">${Icons.book}</div>
-      <span class="nav-brand-text">Academia Connect</span>
+      <span class="nav-brand-text" style="font-family:Georgia,'Times New Roman',serif;font-style:italic;">Academia Connect</span>
     </div>
     <div class="nav-actions">
       <div class="lang-toggle">
@@ -21,12 +21,18 @@ function renderLanding() {
 
   <!-- HERO -->
   <section class="hero">
-    <div class="hero-badge">${Icons.star} Academia Connect — PWA</div>
-    <h1>${t('heroTitle')} <span>${t('heroTitle2')}</span></h1>
-    <p class="hero-sub">${t('heroSub')}</p>
+    <div class="hero-eyebrow">
+      <span class="hero-line"></span>
+      ☆
+      <span class="hero-eyebrow-text">THE PATH TO KNOWLEDGE</span>
+      ☆
+      <span class="hero-line"></span>
+    </div>
+    <h1 class="hero-title-serif">Academia Connect</h1>
+    <p class="hero-sub">Uniting scholars, educators, and families in the pursuit of knowledge. Elevate the academic experience.</p>
     <div class="hero-cta">
-      <button class="btn btn-primary btn-lg" onclick="showPage('auth','register')">${t('getStarted')}</button>
-      <button class="btn btn-secondary btn-lg" onclick="document.getElementById('portals-section').scrollIntoView({behavior:'smooth'})">${t('learnMore')}</button>
+      <button class="btn btn-primary btn-lg" onclick="showPage('auth','register')">${t('getStarted')} ›</button>
+      <button class="btn btn-secondary btn-lg" onclick="showPage('auth','login')">${t('login')}</button>
     </div>
   </section>
 
